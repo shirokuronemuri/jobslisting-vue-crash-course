@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { JobListing } from '@/types';
+import type { JobValue } from '@/types';
 import { computed, ref } from 'vue';
 
-const { job } = defineProps<{ job: JobListing }>();
+const { job } = defineProps<{ job: JobValue }>();
 
 const showFullDescription = ref(false);
 
@@ -10,9 +10,11 @@ const toggleFullDescription = () => {
   showFullDescription.value = !showFullDescription.value;
 };
 
+const needsTruncatedDescription = job.description.length > 90;
+
 const truncatedDescription = computed(() => {
   let description = job.description;
-  if (!showFullDescription.value) {
+  if (!showFullDescription.value && needsTruncatedDescription) {
     description = description.substring(0, 90) + '...';
   }
   return description;
@@ -31,7 +33,11 @@ const truncatedDescription = computed(() => {
         <div>
           {{ truncatedDescription }}
         </div>
-        <button class="text-green-500 hover:text-green-600" @click="toggleFullDescription">
+        <button
+          v-if="needsTruncatedDescription"
+          class="text-green-500 hover:text-green-600"
+          @click="toggleFullDescription"
+        >
           {{ showFullDescription ? 'Show less' : 'Show more' }}
         </button>
       </div>
@@ -46,12 +52,12 @@ const truncatedDescription = computed(() => {
           <i class="pi pi-map-marker text-orange-700"></i>
           {{ job.location }}
         </div>
-        <a
-          :href="'/job/' + job.id"
+        <RouterLink
+          :to="'/jobs/' + job.id"
           class="h-9 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-center text-sm"
         >
           Read More
-        </a>
+        </RouterLink>
       </div>
     </div>
   </div>
